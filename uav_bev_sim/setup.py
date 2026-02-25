@@ -23,6 +23,7 @@ setup(
     entry_points={
         'console_scripts': [
             'motion_controller = uav_bev_sim.motion_controller:main',
+            'cmd_vel_pose_controller = uav_bev_sim.cmd_vel_pose_controller:main',
             'image_capture = uav_bev_sim.image_capture:main',
             'stitching_node = uav_bev_sim.stitching_node:main',
         ],
