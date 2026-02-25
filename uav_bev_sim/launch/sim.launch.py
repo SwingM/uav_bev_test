@@ -55,7 +55,24 @@ def generate_launch_description():
         package='uav_bev_sim',
         executable='motion_controller',
         output='screen',
-        parameters=[{'topic': '/uav_platform/pose_cmd'}],
+        parameters=[{'topic': '/cmd_vel', 'forward_speed_mps': 1.0, 'sideways_speed_mps': 0.0}],
+    )
+
+
+    cmd_vel_pose_node = Node(
+        package='uav_bev_sim',
+        executable='cmd_vel_pose_controller',
+        output='screen',
+        parameters=[
+            {
+                'cmd_vel_topic': '/cmd_vel',
+                'pose_topic': '/uav_platform/pose_cmd',
+                'fixed_altitude_m': 5.0,
+                'rate_hz': 30.0,
+                'initial_x': 0.0,
+                'initial_y': 0.0,
+            }
+        ],
     )
 
     capture_node = Node(
@@ -79,6 +96,7 @@ def generate_launch_description():
             spawn_robot,
             bridge,
             motion_node,
+            cmd_vel_pose_node,
             capture_node,
             stitch_node,
         ]
