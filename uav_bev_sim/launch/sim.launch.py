@@ -67,6 +67,7 @@ def generate_launch_description():
             {
                 'cmd_vel_topic': '/cmd_vel',
                 'pose_topic': '/model/uav_platform/pose',
+                'pose_topic': '/uav_platform/pose_cmd',
                 'fixed_altitude_m': 5.0,
                 'rate_hz': 30.0,
                 'initial_x': 0.0,
