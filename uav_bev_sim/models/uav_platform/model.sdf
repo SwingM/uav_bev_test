@@ -3,6 +3,7 @@
   <model name="uav_platform">
     <static>false</static>
     <pose>0 0 5 0 0 0</pose>
+    <gravity>false</gravity>
 
     <link name="base_link">
       <gravity>false</gravity>
@@ -41,7 +42,18 @@
 
     <link name="camera_link">
       <gravity>false</gravity>
-      <pose>0 0 -0.2 0 -1.5708 0</pose>
+      <pose>0 0 -0.35 0 1.5708 0</pose>
+      <inertial>
+        <mass>0.05</mass>
+        <inertia>
+          <ixx>0.0001</ixx>
+          <iyy>0.0001</iyy>
+          <izz>0.0001</izz>
+          <ixy>0.0</ixy>
+          <ixz>0.0</ixz>
+          <iyz>0.0</iyz>
+        </inertia>
+      </inertial>
 
       <sensor name="down_camera" type="camera">
         <always_on>true</always_on>
@@ -59,8 +71,19 @@
           </clip>
         </camera>
         <topic>/uav/down_camera/image</topic>
+        <camera_info_topic>/uav/down_camera/camera_info</camera_info_topic>
       </sensor>
     </link>
+
+
+    <plugin filename="gz-sim-pose-publisher-system" name="gz::sim::systems::PosePublisher">
+      <publish_link_pose>true</publish_link_pose>
+      <publish_sensor_pose>true</publish_sensor_pose>
+      <publish_nested_model_pose>true</publish_nested_model_pose>
+      <use_pose_vector_msg>true</use_pose_vector_msg>
+      <static_publisher>false</static_publisher>
+      <static_update_frequency>1</static_update_frequency>
+    </plugin>
 
     <joint name="camera_fixed_joint" type="fixed">
       <parent>base_link</parent>

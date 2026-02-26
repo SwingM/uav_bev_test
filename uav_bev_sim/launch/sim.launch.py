@@ -39,23 +39,55 @@ def generate_launch_description():
         ],
     )
 
+    # Explicit one-way bridges:
+    # - image/camera_info: Gazebo -> ROS 2
+    # - pose command: ROS 2 -> Gazebo
     bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
         output='screen',
         arguments=[
-            '/uav/down_camera/image@sensor_msgs/msg/Image@gz.msgs.Image',
-            '/uav_platform/pose_cmd@gz.msgs.Pose@geometry_msgs/msg/Pose',
-            '/clock@rosgraph_msgs/msg/Clock@gz.msgs.Clock',
+            '/uav/down_camera/image@sensor_msgs/msg/Image[gz.msgs.Image',
+            '/uav/down_camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
+            '/uav_platform/pose_cmd@geometry_msgs/msg/Pose]gz.msgs.Pose',
+            '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
         ],
-        remappings=[('/uav/down_camera/image', '/camera/image_raw'), ('/uav_platform/pose_cmd', '/model/uav_platform/pose')],
+        remappings=[
+            ('/uav/down_camera/image', '/camera/image_raw'),
+            ('/uav/down_camera/camera_info', '/camera/camera_info'),
+            ('/uav_platform/pose_cmd', '/model/uav_platform/pose'),
+        ],
     )
 
     motion_node = Node(
         package='uav_bev_sim',
         executable='motion_controller',
         output='screen',
-        parameters=[{'topic': '/uav_platform/pose_cmd'}],
+        parameters=[
+            {
+                'topic': '/cmd_vel',
+                'forward_speed_mps': 1.0,
+                'sideways_speed_mps': 0.3,
+                'segment_duration_s': 4.0,
+                'rate_hz': 20.0,
+            }
+        ],
+    )
+
+    cmd_vel_pose_node = Node(
+        package='uav_bev_sim',
+        executable='cmd_vel_pose_controller',
+        output='screen',
+        parameters=[
+            {
+                'cmd_vel_topic': '/cmd_vel',
+                'pose_topic': '/uav_platform/pose_cmd',
+                'fixed_altitude_m': 5.0,
+                'rate_hz': 30.0,
+                'initial_x': 0.0,
+                'initial_y': 0.0,
+            }
+        ],
     )
 
     capture_node = Node(
@@ -79,6 +111,7 @@ def generate_launch_description():
             spawn_robot,
             bridge,
             motion_node,
+            cmd_vel_pose_node,
             capture_node,
             stitch_node,
         ]
