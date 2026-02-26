@@ -16,13 +16,11 @@ class CmdVelPoseController(Node):
         self.declare_parameter('rate_hz', 30.0)
         self.declare_parameter('initial_x', 0.0)
         self.declare_parameter('initial_y', 0.0)
-        self.declare_parameter('pose_feedback_topic', '/uav_platform/pose')
 
         self.cmd_vel_topic = self.get_parameter('cmd_vel_topic').value
         self.pose_topic = self.get_parameter('pose_topic').value
         self.fixed_altitude = self.get_parameter('fixed_altitude_m').value
         self.rate_hz = self.get_parameter('rate_hz').value
-        self.pose_feedback_topic = self.get_parameter('pose_feedback_topic').value
 
         self.x = float(self.get_parameter('initial_x').value)
         self.y = float(self.get_parameter('initial_y').value)
@@ -31,7 +29,6 @@ class CmdVelPoseController(Node):
 
         self.subscription = self.create_subscription(Twist, self.cmd_vel_topic, self.on_cmd_vel, 10)
         self.publisher = self.create_publisher(Pose, self.pose_topic, 10)
-        self.feedback_publisher = self.create_publisher(Pose, self.pose_feedback_topic, 10)
         self.timer = self.create_timer(1.0 / self.rate_hz, self.on_timer)
 
         self.get_logger().info(
@@ -59,7 +56,6 @@ class CmdVelPoseController(Node):
         msg.orientation.w = math.cos(self.yaw / 2.0)
 
         self.publisher.publish(msg)
-        self.feedback_publisher.publish(msg)
 
 
 def main() -> None:

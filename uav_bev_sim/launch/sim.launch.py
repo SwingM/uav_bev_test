@@ -63,16 +63,9 @@ def generate_launch_description():
         package='uav_bev_sim',
         executable='motion_controller',
         output='screen',
-        parameters=[
-            {
-                'topic': '/cmd_vel',
-                'forward_speed_mps': 1.0,
-                'sideways_speed_mps': 0.3,
-                'segment_duration_s': 4.0,
-                'rate_hz': 20.0,
-            }
-        ],
+        parameters=[{'topic': '/cmd_vel', 'forward_speed_mps': 1.0, 'sideways_speed_mps': 0.0}],
     )
+
 
     cmd_vel_pose_node = Node(
         package='uav_bev_sim',

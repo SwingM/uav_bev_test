@@ -42,7 +42,7 @@
 
     <link name="camera_link">
       <gravity>false</gravity>
-      <pose>0 0 -0.35 0 1.5708 0</pose>
+      <pose>0 0 -0.2 0 -1.5708 0</pose>
       <inertial>
         <mass>0.05</mass>
         <inertia>
