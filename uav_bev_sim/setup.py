@@ -30,6 +30,7 @@ setup(
             'coverage_planner = uav_bev_sim.coverage_planner:main',
             # add publish pose node
             'uav_pose_publisher = uav_bev_sim.uav_pose_publisher:main',
+            'uav_autopilot = uav_bev_sim.uav_autopilot:main',
         ],
     },
 )
