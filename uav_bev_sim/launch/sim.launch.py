@@ -46,6 +46,9 @@ def generate_launch_description():
         ],
     )
 
+    # NOTE: keep Humble-compatible pose bridge.
+    # Do not switch this back to Pose_V (/world/.../pose/info),
+    # because ros_gz_interfaces/msg/Pose_V may be unavailable on Humble installs.
     bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
@@ -54,7 +57,7 @@ def generate_launch_description():
             '/uav/down_camera/image@sensor_msgs/msg/Image@gz.msgs.Image',
             '/model/uav_platform/cmd_vel@geometry_msgs/msg/Twist@gz.msgs.Twist',
             '/clock@rosgraph_msgs/msg/Clock@gz.msgs.Clock',
-            '/world/mosaic_world/pose/info@gz.msgs.Pose_V@ros_gz_interfaces/msg/Pose_V',
+            '/model/uav_platform/pose@geometry_msgs/msg/Pose@gz.msgs.Pose',
         ],
         remappings=[
             ('/uav/down_camera/image', '/camera/image_raw'),
@@ -67,8 +70,7 @@ def generate_launch_description():
         executable='uav_pose_publisher',
         output='screen',
         parameters=[{
-            'world_pose_topic': '/world/mosaic_world/pose/info',
-            'uav_name': 'uav_platform',
+            'input_pose_topic': '/model/uav_platform/pose',
             'output_topic': '/uav_platform/pose',
         }],
     )
