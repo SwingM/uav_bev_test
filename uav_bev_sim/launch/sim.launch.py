@@ -54,7 +54,7 @@ def generate_launch_description():
             '/uav/down_camera/image@sensor_msgs/msg/Image@gz.msgs.Image',
             '/model/uav_platform/cmd_vel@geometry_msgs/msg/Twist@gz.msgs.Twist',
             '/clock@rosgraph_msgs/msg/Clock@gz.msgs.Clock',
-            '/model/uav_platform/pose@geometry_msgs/msg/Pose@gz.msgs.Pose',
+            '/world/mosaic_world/pose/info@gz.msgs.Pose_V@ros_gz_interfaces/msg/Pose_V',
         ],
         remappings=[
             ('/uav/down_camera/image', '/camera/image_raw'),
@@ -67,7 +67,8 @@ def generate_launch_description():
         executable='uav_pose_publisher',
         output='screen',
         parameters=[{
-            'input_pose_topic': '/model/uav_platform/pose',
+            'world_pose_topic': '/world/mosaic_world/pose/info',
+            'uav_name': 'uav_platform',
             'output_topic': '/uav_platform/pose',
         }],
     )
