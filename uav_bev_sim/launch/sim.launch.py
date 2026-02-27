@@ -33,8 +33,6 @@ def generate_launch_description():
         output='screen',
         arguments=[
             '-name', 'uav_platform',
-            # '-x', '0',
-            # '-y', '0',
             '-x', '-5.5',
             '-y', '7.5',
             '-z', '5',
@@ -48,7 +46,6 @@ def generate_launch_description():
         ],
     )
 
-    # ✅ Correct bridge: ROS /cmd_vel -> Gazebo /model/uav_platform/cmd_vel
     bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
@@ -57,54 +54,52 @@ def generate_launch_description():
             '/uav/down_camera/image@sensor_msgs/msg/Image@gz.msgs.Image',
             '/model/uav_platform/cmd_vel@geometry_msgs/msg/Twist@gz.msgs.Twist',
             '/clock@rosgraph_msgs/msg/Clock@gz.msgs.Clock',
-            #  pose v for platform
             '/world/mosaic_world/pose/info@gz.msgs.Pose_V@ros_gz_interfaces/msg/Pose_V',
         ],
         remappings=[
             ('/uav/down_camera/image', '/camera/image_raw'),
             ('/model/uav_platform/cmd_vel', '/cmd_vel'),
-            # ('/model/uav_platform/pose', '/uav_platform/pose'),
         ],
     )
 
-
-    # keep only the velocity generator
-    '''
-    motion_node = Node(
-        package='uav_bev_sim',
-        executable='motion_controller',
-        output='screen',
-        parameters=[{
-            'topic': '/cmd_vel',
-            'forward_speed_mps': 1.0,
-            'sideways_speed_mps': 0.0
-        }],
-    )
-    '''
-
-    # planning to circle the map
-    '''
-    planner_node = Node(
-        package='uav_bev_sim',
-        executable='coverage_planner',
-        output='screen'
-    )
-    '''
-
-    # Add pubish node 
-    
     uav_pose_node = Node(
         package='uav_bev_sim',
         executable='uav_pose_publisher',
-        output='screen'
+        output='screen',
+        parameters=[{
+            'world_pose_topic': '/world/mosaic_world/pose/info',
+            'uav_name': 'uav_platform',
+            'output_topic': '/uav_platform/pose',
+        }],
     )
-    
+
+    uav_autopilot_node = Node(
+        package='uav_bev_sim',
+        executable='uav_autopilot',
+        output='screen',
+        parameters=[{
+            'pose_topic': '/uav_platform/pose',
+            'cmd_vel_topic': '/cmd_vel',
+            'x_min': -8.0,
+            'x_max': 10.0,
+            'y_min': -8.0,
+            'y_max': 8.0,
+            'target_altitude_m': 5.0,
+            'camera_interval_s': 0.7,
+            'camera_footprint_x_m': 4.0,
+            'camera_footprint_y_m': 3.0,
+            'coverage_overlap_ratio': 0.25,
+            'max_speed_mps': 1.2,
+            'position_tolerance_m': 0.25,
+            'control_rate_hz': 10.0,
+        }],
+    )
+
     return LaunchDescription([
         world_arg,
         gz_sim,
         spawn_robot,
         bridge,
-        # motion_node,
-        # planner_node,
         uav_pose_node,
+        uav_autopilot_node,
     ])
