@@ -11,12 +11,18 @@ def generate_launch_description():
 
     world_arg = DeclareLaunchArgument(
         'world',
-        default_value=PathJoinSubstitution([FindPackageShare('uav_bev_sim'), 'worlds', 'mosaic_world.sdf']),
+        default_value=PathJoinSubstitution([
+            FindPackageShare('uav_bev_sim'), 'worlds', 'mosaic_world.sdf'
+        ]),
     )
 
     gz_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            PathJoinSubstitution([FindPackageShare('ros_gz_sim'), 'launch', 'gz_sim.launch.py'])
+            PathJoinSubstitution([
+                FindPackageShare('ros_gz_sim'),
+                'launch',
+                'gz_sim.launch.py'
+            ])
         ),
         launch_arguments={'gz_args': ['-r ', world]}.items(),
     )
@@ -26,78 +32,79 @@ def generate_launch_description():
         executable='create',
         output='screen',
         arguments=[
-            '-name',
-            'uav_platform',
-            '-x',
-            '0',
-            '-y',
-            '0',
-            '-z',
-            '5',
+            '-name', 'uav_platform',
+            # '-x', '0',
+            # '-y', '0',
+            '-x', '-5.5',
+            '-y', '7.5',
+            '-z', '5',
             '-file',
-            PathJoinSubstitution([FindPackageShare('uav_bev_sim'), 'models', 'uav_platform', 'model.sdf']),
+            PathJoinSubstitution([
+                FindPackageShare('uav_bev_sim'),
+                'models',
+                'uav_platform',
+                'model.sdf'
+            ]),
         ],
     )
 
+    # ✅ Correct bridge: ROS /cmd_vel -> Gazebo /model/uav_platform/cmd_vel
     bridge = Node(
         package='ros_gz_bridge',
         executable='parameter_bridge',
         output='screen',
         arguments=[
             '/uav/down_camera/image@sensor_msgs/msg/Image@gz.msgs.Image',
-            '/uav_platform/pose_cmd@gz.msgs.Pose@geometry_msgs/msg/Pose',
+            '/model/uav_platform/cmd_vel@geometry_msgs/msg/Twist@gz.msgs.Twist',
             '/clock@rosgraph_msgs/msg/Clock@gz.msgs.Clock',
+            #  pose v for platform
+            '/world/mosaic_world/pose/info@gz.msgs.Pose_V@ros_gz_interfaces/msg/Pose_V',
         ],
-        remappings=[('/uav/down_camera/image', '/camera/image_raw'), ('/uav_platform/pose_cmd', '/model/uav_platform/pose')],
+        remappings=[
+            ('/uav/down_camera/image', '/camera/image_raw'),
+            ('/model/uav_platform/cmd_vel', '/cmd_vel'),
+            # ('/model/uav_platform/pose', '/uav_platform/pose'),
+        ],
     )
 
+
+    # keep only the velocity generator
+    '''
     motion_node = Node(
         package='uav_bev_sim',
         executable='motion_controller',
         output='screen',
-        parameters=[{'topic': '/cmd_vel', 'forward_speed_mps': 1.0, 'sideways_speed_mps': 0.0}],
+        parameters=[{
+            'topic': '/cmd_vel',
+            'forward_speed_mps': 1.0,
+            'sideways_speed_mps': 0.0
+        }],
     )
+    '''
 
-
-    cmd_vel_pose_node = Node(
+    # planning to circle the map
+    '''
+    planner_node = Node(
         package='uav_bev_sim',
-        executable='cmd_vel_pose_controller',
-        output='screen',
-        parameters=[
-            {
-                'cmd_vel_topic': '/cmd_vel',
-                'pose_topic': '/uav_platform/pose_cmd',
-                'fixed_altitude_m': 5.0,
-                'rate_hz': 30.0,
-                'initial_x': 0.0,
-                'initial_y': 0.0,
-            }
-        ],
+        executable='coverage_planner',
+        output='screen'
     )
+    '''
 
-    capture_node = Node(
+    # Add pubish node 
+    
+    uav_pose_node = Node(
         package='uav_bev_sim',
-        executable='image_capture',
-        output='screen',
-        parameters=[{'camera_topic': '/camera/image_raw', 'output_dir': 'captures'}],
+        executable='uav_pose_publisher',
+        output='screen'
     )
-
-    stitch_node = Node(
-        package='uav_bev_sim',
-        executable='stitching_node',
-        output='screen',
-        parameters=[{'camera_topic': '/camera/image_raw', 'output_file': 'captures/mosaic_result.png'}],
-    )
-
-    return LaunchDescription(
-        [
-            world_arg,
-            gz_sim,
-            spawn_robot,
-            bridge,
-            motion_node,
-            cmd_vel_pose_node,
-            capture_node,
-            stitch_node,
-        ]
-    )
+    
+    return LaunchDescription([
+        world_arg,
+        gz_sim,
+        spawn_robot,
+        bridge,
+        # motion_node,
+        # planner_node,
+        uav_pose_node,
+    ])

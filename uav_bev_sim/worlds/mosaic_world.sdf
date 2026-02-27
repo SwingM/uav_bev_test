@@ -81,7 +81,9 @@
       </link>
     </model>
 
+    <!-- Set gravity to zero -->
     <physics type="ignored">
+      <gravity>0 0 0</gravity> <!-- Set gravity to zero in the world -->
       <max_step_size>0.004</max_step_size>
       <real_time_factor>1.0</real_time_factor>
     </physics>

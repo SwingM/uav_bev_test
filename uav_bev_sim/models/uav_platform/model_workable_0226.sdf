@@ -40,13 +40,6 @@
       </visual>
     </link>
 
-    <!-- from GPT, using to fix topic problem-->
-    <plugin
-      filename="libgz-sim-velocity-control-system.so"
-      name="gz::sim::systems::VelocityControl">
-      <topic>/model/uav_platform/cmd_vel</topic>
-    </plugin>
-
     <link name="camera_link">
       <gravity>false</gravity>
       <!-- Camera positioned below the UAV center, pointing straight down -->

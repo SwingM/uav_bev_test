@@ -26,6 +26,10 @@ setup(
             'cmd_vel_pose_controller = uav_bev_sim.cmd_vel_pose_controller:main',
             'image_capture = uav_bev_sim.image_capture:main',
             'stitching_node = uav_bev_sim.stitching_node:main',
+            # add coverage node
+            'coverage_planner = uav_bev_sim.coverage_planner:main',
+            # add publish pose node
+            'uav_pose_publisher = uav_bev_sim.uav_pose_publisher:main',
         ],
     },
 )

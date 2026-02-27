@@ -34,23 +34,15 @@
           </box>
         </geometry>
         <material>
-          <ambient>0.2 0.2 0.8 0.5</ambient>
-          <diffuse>0.2 0.2 0.8 0.5</diffuse>
+          <ambient>0.2 0.2 0.8 1</ambient>
+          <diffuse>0.2 0.2 0.8 1</diffuse>
         </material>
       </visual>
     </link>
 
-    <!-- from GPT, using to fix topic problem-->
-    <plugin
-      filename="libgz-sim-velocity-control-system.so"
-      name="gz::sim::systems::VelocityControl">
-      <topic>/model/uav_platform/cmd_vel</topic>
-    </plugin>
-
     <link name="camera_link">
       <gravity>false</gravity>
-      <!-- Camera positioned below the UAV center, pointing straight down -->
-      <pose>0 0 0 0 1.5708 0</pose>  
+      <pose>0 0 -0.2 0 -1.5708 0</pose>
       <inertial>
         <mass>0.05</mass>
         <inertia>
@@ -85,7 +77,6 @@
     <joint name="camera_fixed_joint" type="fixed">
       <parent>base_link</parent>
       <child>camera_link</child>
-      <pose>0 0 -0.1 -1.5708 0 0</pose> <!-- camera slightly below the UAV center -->
     </joint>
   </model>
 </sdf>
